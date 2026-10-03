@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import { Clock3, Pause, Play, Square } from 'lucide-react';
 import type { Action, Settings, Task } from '../shared/types';
 export function TaskActions({
@@ -13,13 +14,14 @@ export function TaskActions({
   onAction: (action: Action) => void;
   onSchedule: () => void;
 }) {
+  useLocale();
   const active = task.status === 'running' || task.status === 'queued';
   return (
     <div className="task-controls">
       {active ? (
         <button disabled={busy} onClick={() => onAction('pause')}>
           <Pause size={14} />
-          Pause task
+          {t('Pause task')}
         </button>
       ) : (
         <button
@@ -28,21 +30,21 @@ export function TaskActions({
         >
           <Play size={14} />
           {task.status === 'failed'
-            ? 'Retry task'
+            ? t('Retry task')
             : task.status === 'paused'
-              ? 'Resume task'
-              : 'Run again'}
+              ? t('Resume task')
+              : t('Run again')}
         </button>
       )}
       {task.status === 'completed' && !!task.intervalSeconds && (
         <button disabled={busy} onClick={() => onAction('pause')}>
           <Pause size={14} />
-          Pause schedule
+          {t('Pause schedule')}
         </button>
       )}
       <button onClick={onSchedule}>
         <Clock3 size={14} />
-        {task.intervalSeconds ? 'Edit schedule' : 'Set a schedule'}
+        {task.intervalSeconds ? t('Edit schedule') : t('Set a schedule')}
       </button>
       {task.status !== 'cancelled' && (
         <button
@@ -51,7 +53,7 @@ export function TaskActions({
           onClick={() => onAction('cancel')}
         >
           <Square size={12} />
-          Cancel
+          {t('Cancel')}
         </button>
       )}
     </div>

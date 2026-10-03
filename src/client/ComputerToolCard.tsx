@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import { useEffect, useState } from 'react';
 import { ArrowUpRight, FileText, Monitor, Terminal } from 'lucide-react';
 import { z } from 'zod';
@@ -60,6 +61,7 @@ export function ComputerToolCard({
   running: boolean;
   onExpand?: () => void;
 }) {
+  useLocale();
   const [screen, setScreen] = useState<z.infer<typeof screenSchema>>();
   const [screenError, setScreenError] = useState('');
   const action = name.replace(/^computer_/, '');
@@ -81,14 +83,14 @@ export function ComputerToolCard({
     !!error ||
     (typeof data.exitCode === 'number' && data.exitCode !== 0);
   const state = interrupted
-    ? 'Interrupted'
+    ? t('Interrupted')
     : failed
-      ? 'Needs attention'
+      ? t('Needs attention')
       : complete
-        ? 'Finished'
+        ? t('Finished')
         : running
-          ? 'Working'
-          : 'Interrupted';
+          ? t('Working')
+          : t('Interrupted');
   const detail =
     typeof parameters.url === 'string'
       ? parameters.url
@@ -121,7 +123,7 @@ export function ComputerToolCard({
             setScreenError(
               cause instanceof Error
                 ? cause.message
-                : 'Computer preview unavailable.',
+                : t('Computer preview unavailable.'),
             );
           }
         }
@@ -144,18 +146,21 @@ export function ComputerToolCard({
   return (
     <section
       className={`inline-computer ${showScreen ? 'with-screen' : ''}`}
-      aria-label={`${dotName} computer: ${labels[action] ?? action}`}
+      aria-label={t('{name} computer: {action}', {
+        name: dotName,
+        action: t(labels[action] ?? action),
+      })}
     >
       <header>
         <Icon size={16} aria-hidden="true" />
-        <strong>{labels[action] ?? 'Using computer'}</strong>
+        <strong>{t(labels[action] ?? 'Using computer')}</strong>
         <span className={failed ? 'tool-state failed' : 'tool-state'}>
           {state}
         </span>
         {onExpand && (
           <button
             type="button"
-            aria-label={`Expand ${dotName} computer`}
+            aria-label={t('Expand {name} computer', { name: dotName })}
             onClick={onExpand}
           >
             <ArrowUpRight size={16} />
@@ -167,10 +172,10 @@ export function ComputerToolCard({
           {detail}
         </div>
       )}
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert">{t(error)}</p>}
       {interruption && <p role="status">{interruption}</p>}
       {action === 'exec' && complete && typeof data.stdout === 'string' && (
-        <pre aria-label="Computer terminal output">
+        <pre aria-label={t('Computer terminal output')}>
           {data.stdout.slice(0, 4000)}
         </pre>
       )}
@@ -182,18 +187,21 @@ export function ComputerToolCard({
         <div className="inline-computer-preview">
           <div className="inline-computer-caption">
             <span className="live-indicator" />
-            {dotName}’s computer · Current browser view
+            {dotName}
+            {t('’s computer · Current browser view')}
           </div>
           {screen && (
             <img
               src={`data:image/png;base64,${screen.base64}`}
-              alt={`Current browser view from ${dotName}'s computer`}
+              alt={t("Current browser view from {name}'s computer", {
+                name: dotName,
+              })}
             />
           )}
           {screenError ? (
-            <p role="status">{screenError}</p>
+            <p role="status">{t(screenError)}</p>
           ) : (
-            !screen && <p role="status">Connecting to computer…</p>
+            !screen && <p role="status">{t('Connecting to computer…')}</p>
           )}
           {screen && <div className="inline-computer-url">{screen.url}</div>}
         </div>

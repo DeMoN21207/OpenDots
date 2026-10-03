@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import { openPageLink } from './page-navigation';
 import { Fragment, type ReactNode } from 'react';
 import { PhoneOff } from 'lucide-react';
@@ -18,17 +19,20 @@ export function isInternalVoiceReceipt(message: Message): boolean {
   );
 }
 function Receipt({ call }: { call: CallReceipt }) {
+  useLocale();
   return (
     <div className="call-receipt">
       <PhoneOff size={13} />
       <span>
         {call.status === 'failed'
-          ? 'Call failed'
+          ? t('Call failed')
           : call.endedAt
-            ? `${Math.round((call.endedAt - call.startedAt) / 1000)}s · Call ended`
-            : 'Call in progress'}
+            ? t('{seconds}s · Call ended', {
+                seconds: Math.round((call.endedAt - call.startedAt) / 1000),
+              })
+            : t('Call in progress')}
       </span>
-      {call.error && <small>{call.error}</small>}
+      {call.error && <small>{t(call.error)}</small>}
     </div>
   );
 }

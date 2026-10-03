@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import { useEffect, useRef, useState } from 'react';
 import { Check, FileText, ArrowUpRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -23,6 +24,7 @@ export function PageReviewCard({
   toolCallId: string;
   onSaved: () => void;
 }) {
+  useLocale();
   const draft = pageReviewSchema.safeParse(args);
   const outcome = computerToolResult(result);
   const [savedPage, setSavedPage] = useState<Page>();
@@ -55,7 +57,7 @@ export function PageReviewCard({
           setError(
             cause instanceof Error
               ? cause.message
-              : 'Could not restore this review.',
+              : t('Could not restore this review.'),
           );
       });
     return () => {
@@ -89,7 +91,7 @@ export function PageReviewCard({
       setError(
         cause instanceof Error
           ? cause.message
-          : 'Could not save the approved draft.',
+          : t('Could not save the approved draft.'),
       );
     } finally {
       pending.current = false;
@@ -97,30 +99,30 @@ export function PageReviewCard({
     }
   };
   return (
-    <section className="page-review-card" aria-label="Review page draft">
+    <section className="page-review-card" aria-label={t('Review page draft')}>
       <header>
         <FileText size={17} />
         <strong>
           {saved
-            ? 'Saved to your Space'
+            ? t('Saved to your Space')
             : !receiptReady
-              ? 'Checking saved review…'
+              ? t('Checking saved review…')
               : finished
-                ? 'Review ended'
-                : 'Ready for your review'}
+                ? t('Review ended')
+                : t('Ready for your review')}
         </strong>
         <span>
           {saved
-            ? 'Approved'
+            ? t('Approved')
             : !receiptReady
-              ? 'Checking'
+              ? t('Checking')
               : finished
-                ? 'Not saved'
-                : 'You decide'}
+                ? t('Not saved')
+                : t('You decide')}
         </span>
       </header>
       <div className="page-review-body">
-        <h3>{draft.success ? draft.data.title : 'Preparing your draft…'}</h3>
+        <h3>{draft.success ? draft.data.title : t('Preparing your draft…')}</h3>
         {draft.success && (
           <ReactMarkdown
             components={{
@@ -136,13 +138,13 @@ export function PageReviewCard({
           </ReactMarkdown>
         )}
       </div>
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert">{t(error)}</p>}
       {!receiptReady && error && (
         <button
           type="button"
           onClick={() => setRestoreAttempt((attempt) => attempt + 1)}
         >
-          Retry review
+          {t('Retry review')}
         </button>
       )}
       <footer>
@@ -156,7 +158,8 @@ export function PageReviewCard({
               )
             }
           >
-            Open page <ArrowUpRight size={15} />
+            {t('Open page')}
+            <ArrowUpRight size={15} />
           </button>
         )}
         {!finished && respond && receiptReady && (
@@ -169,10 +172,10 @@ export function PageReviewCard({
             >
               <Check size={15} />
               {busy
-                ? 'Saving…'
+                ? t('Saving…')
                 : saved
-                  ? 'Continue conversation'
-                  : 'Approve & save'}
+                  ? t('Continue conversation')
+                  : t('Approve & save')}
             </button>
             {!saved && (
               <button
@@ -180,7 +183,7 @@ export function PageReviewCard({
                 disabled={busy}
                 onClick={() => void decide(false)}
               >
-                Decline
+                {t('Decline')}
               </button>
             )}
           </>
@@ -188,10 +191,10 @@ export function PageReviewCard({
         {!saved && (
           <small>
             {!receiptReady
-              ? 'Checking whether this draft was already saved.'
+              ? t('Checking whether this draft was already saved.')
               : finished
-                ? 'No page was saved.'
-                : 'Nothing is saved until you approve.'}
+                ? t('No page was saved.')
+                : t('Nothing is saved until you approve.')}
           </small>
         )}
       </footer>

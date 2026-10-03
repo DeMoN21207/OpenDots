@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import {
   lazy,
   Suspense,
@@ -52,6 +53,7 @@ export function PageDocument({
   onSettings: () => void;
   onCreateDot: () => void;
 }) {
+  useLocale();
   const { controller, state } = usePageAutosave(page, onSaved);
   const draft = state.draft!;
   const [source, setSource] = useState(false);
@@ -99,7 +101,9 @@ export function PageDocument({
   const latest = async () => {
     if (
       !window.confirm(
-        'Load the latest saved page and replace this draft? Download your draft first if you want to keep it.',
+        t(
+          'Load the latest saved page and replace this draft? Download your draft first if you want to keep it.',
+        ),
       )
     )
       return;
@@ -113,7 +117,7 @@ export function PageDocument({
       setNotice(
         error instanceof Error
           ? error.message
-          : 'Could not load the latest page. Your draft is unchanged.',
+          : t('Could not load the latest page. Your draft is unchanged.'),
       );
     }
   };
@@ -133,28 +137,28 @@ export function PageDocument({
   }
   const status =
     state.status === 'saving'
-      ? 'Saving…'
+      ? t('Saving…')
       : state.status === 'saved'
-        ? 'All changes saved'
+        ? t('All changes saved')
         : state.status === 'dirty'
-          ? 'Unsaved changes'
+          ? t('Unsaved changes')
           : state.status === 'conflict'
-            ? 'Changes need review'
-            : 'Could not save';
+            ? t('Changes need review')
+            : t('Could not save');
   return (
     <section
       className={`document-session ${chatOpen ? 'chat-visible' : ''}`}
-      aria-label="Document workspace"
+      aria-label={t('Document workspace')}
     >
       <div className="document-column">
         <header className="document-topbar">
           <button className="document-back" onClick={onHome}>
             <ArrowLeft size={16} />
-            <span>All pages</span>
+            <span>{t('All pages')}</span>
           </button>
           <button
             className="document-icon"
-            aria-label="Toggle page outline"
+            aria-label={t('Toggle page outline')}
             onClick={onOutline}
           >
             <PanelLeft size={17} />
@@ -174,28 +178,28 @@ export function PageDocument({
           <DocumentMenu
             items={[
               {
-                label: 'Save now · ⌘/Ctrl S',
+                label: t('Save now · ⌘/Ctrl S'),
                 action: () => void controller.flush(true),
               },
               {
-                label: sourceMode ? 'Visual editor' : 'Markdown source',
+                label: sourceMode ? t('Visual editor') : t('Markdown source'),
                 action: () => {
                   if (sourceMode && !safety.supported) {
                     setNotice(
-                      safety.reason ?? 'This document needs source mode.',
+                      safety.reason ?? t('This document needs source mode.'),
                     );
                     return;
                   }
                   setSource(!sourceMode);
                 },
               },
-              { label: 'Move page', action: () => setMove(!move) },
-              { label: 'New subpage', action: onSubpage },
-              { label: 'Download Markdown', action: download },
+              { label: t('Move page'), action: () => setMove(!move) },
+              { label: t('New subpage'), action: onSubpage },
+              { label: t('Download Markdown'), action: download },
               ...(page.sourceThreadId
                 ? [
                     {
-                      label: 'Open source conversation',
+                      label: t('Open source conversation'),
                       action: () => onThread(page.sourceThreadId!),
                     },
                   ]
@@ -210,24 +214,26 @@ export function PageDocument({
                 className={`document-save-notice ${state.status}`}
                 role="alert"
               >
-                <p>{state.error}</p>
+                <p>{t(state.error)}</p>
                 <div>
                   {state.status === 'error' && (
                     <button onClick={() => void controller.flush(true)}>
-                      Retry save
+                      {t('Retry save')}
                     </button>
                   )}
-                  <button onClick={download}>Download draft</button>
+                  <button onClick={download}>{t('Download draft')}</button>
                   {state.status === 'conflict' && (
-                    <button onClick={() => void latest()}>Load latest</button>
+                    <button onClick={() => void latest()}>
+                      {t('Load latest')}
+                    </button>
                   )}
                 </div>
               </div>
             )}
             {notice && (
               <div className="document-notice" role="status">
-                {notice}
-                <button onClick={() => setNotice('')}>Dismiss</button>
+                {t(notice)}
+                <button onClick={() => setNotice('')}>{t('Dismiss')}</button>
               </div>
             )}
             {move && (
@@ -238,16 +244,16 @@ export function PageDocument({
                 }}
               >
                 <label>
-                  Move under
+                  {t('Move under')}
                   <select
                     autoFocus
-                    aria-label="Parent page"
+                    aria-label={t('Parent page')}
                     value={draft.parentId ?? ''}
                     onChange={(e) =>
                       controller.edit({ parentId: e.target.value || null })
                     }
                   >
-                    <option value="">Space root</option>
+                    <option value="">{t('Space root')}</option>
                     {pages
                       .filter((p) => !descendants.has(p.id))
                       .map((p) => (
@@ -257,13 +263,13 @@ export function PageDocument({
                       ))}
                   </select>
                 </label>
-                <button onClick={() => setMove(false)}>Done</button>
+                <button onClick={() => setMove(false)}>{t('Done')}</button>
               </div>
             )}
             <input
               className="document-title"
-              aria-label="Page title"
-              placeholder="Untitled page"
+              aria-label={t('Page title')}
+              placeholder={t('Untitled page')}
               maxLength={160}
               value={draft.title}
               onChange={(event) =>
@@ -274,14 +280,14 @@ export function PageDocument({
               <>
                 <div className="source-mode-label">
                   <FileCode2 size={15} />
-                  <span>Markdown source</span>
+                  <span>{t('Markdown source')}</span>
                 </div>
                 {!safety.supported && (
-                  <p className="source-mode-reason">{safety.reason}</p>
+                  <p className="source-mode-reason">{t(safety.reason ?? '')}</p>
                 )}
                 <textarea
                   className="document-source"
-                  aria-label="Page Markdown"
+                  aria-label={t('Page Markdown')}
                   spellCheck={false}
                   value={draft.content}
                   maxLength={100000}
@@ -292,7 +298,9 @@ export function PageDocument({
               </>
             ) : (
               <Suspense
-                fallback={<div className="editor-loading">Loading editor…</div>}
+                fallback={
+                  <div className="editor-loading">{t('Loading editor…')}</div>
+                }
               >
                 <RichEditor
                   value={draft.content}

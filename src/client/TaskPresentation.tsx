@@ -1,3 +1,4 @@
+import { t, useLocale, formatDate } from './i18n';
 import {
   CheckCheck,
   ChevronRight,
@@ -9,18 +10,23 @@ import { Mascot } from './Mascot';
 export const relative = (value: number) => {
   const minutes = Math.floor((Date.now() - value) / 60000);
   return minutes < 1
-    ? 'Just now'
+    ? t('Just now')
     : minutes < 60
-      ? `${minutes}m ago`
+      ? t('{minutes}m ago', { minutes })
       : minutes < 1440
-        ? `${Math.floor(minutes / 60)}h ago`
-        : new Date(value).toLocaleDateString();
+        ? t('{hours}h ago', { hours: Math.floor(minutes / 60) })
+        : formatDate(value, {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+          });
 };
 export const statusLabel = (task: Task) =>
   task.status === 'completed' && task.nextRunAt
-    ? 'Scheduled'
-    : task.status.charAt(0).toUpperCase() + task.status.slice(1);
+    ? t('Scheduled')
+    : t(task.status.charAt(0).toUpperCase() + task.status.slice(1));
 export function Status({ task }: { task: Task }) {
+  useLocale();
   return (
     <span className={`status ${task.status}`}>
       <span />
@@ -36,6 +42,7 @@ export function TaskRow({
   task: Task;
   onClick: () => void;
 }) {
+  useLocale();
   return (
     <button className="task-row" onClick={onClick}>
       <span className="task-row-icon">
@@ -51,7 +58,12 @@ export function TaskRow({
         <strong>{task.prompt}</strong>
         <span>
           {task.intervalSeconds
-            ? `Repeats every ${task.intervalSeconds < 3600 ? task.intervalSeconds / 60 + ' min' : task.intervalSeconds / 3600 + ' hr'} · `
+            ? t('Repeats every {interval} · ', {
+                interval:
+                  task.intervalSeconds < 3600
+                    ? t('{value} min', { value: task.intervalSeconds / 60 })
+                    : t('{value} hr', { value: task.intervalSeconds / 3600 }),
+              })
             : ''}
           {relative(task.updatedAt)}
         </span>

@@ -1,3 +1,4 @@
+import { t, useLocale } from '../i18n';
 import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 export function DocumentMenu({
@@ -5,6 +6,7 @@ export function DocumentMenu({
 }: {
   items: { label: string; action: () => void }[];
 }) {
+  useLocale();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -62,7 +64,7 @@ export function DocumentMenu({
       <button
         ref={trigger}
         className="document-icon"
-        aria-label="Page actions"
+        aria-label={t('Page actions')}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen(!open)}
@@ -73,7 +75,7 @@ export function DocumentMenu({
         <div
           className="document-dropdown"
           role="menu"
-          aria-label="Page actions"
+          aria-label={t('Page actions')}
         >
           {items.map((item) => (
             <button

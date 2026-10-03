@@ -164,6 +164,8 @@ Open **http://127.0.0.1:5173**. You can create Spaces, write pages, and configur
 
 See [Setup](docs/SETUP.md) for configuration, Slack, calls, the browser service, and Docker.
 
+This fork adds English and Russian interface languages. Choose **Settings & setup → Interface language**; your choice applies immediately and is saved in the browser. See [Languages](docs/LANGUAGES.md) for translation maintenance and upstream updates.
+
 ## Features
 
 | Area                       | Included                                                                                                                                |

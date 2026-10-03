@@ -1,4 +1,5 @@
 import { Extension, type Editor, type Range } from '@tiptap/core';
+import { t } from '../i18n';
 import Suggestion, {
   exitSuggestion,
   type SuggestionProps,
@@ -77,11 +78,19 @@ export const SlashCommands = Extension.create({
         startOfLine: true,
         allowedPrefixes: null,
         items: ({ query }) =>
-          blocks.filter((block) =>
-            `${block.title} ${block.description}`
-              .toLowerCase()
-              .includes(query.toLowerCase()),
-          ),
+          blocks
+            .map((block) => ({
+              ...block,
+              title: block.title.startsWith('Heading ')
+                ? t('Heading {level}', { level: block.title.slice(8) })
+                : t(block.title),
+              description: t(block.description),
+            }))
+            .filter((block, index) =>
+              `${block.title} ${block.description} ${blocks[index].title}`
+                .toLowerCase()
+                .includes(query.toLowerCase()),
+            ),
         command: ({ editor, range, props }) => props.run(editor, range),
         render: () => {
           let menu: HTMLDivElement | undefined;
@@ -108,11 +117,11 @@ export const SlashCommands = Extension.create({
             menu.replaceChildren();
             const label = document.createElement('div');
             label.className = 'slash-menu-label';
-            label.textContent = 'INSERT BLOCK';
+            label.textContent = t('INSERT BLOCK');
             menu.append(label);
             if (!props.items.length) {
               const empty = document.createElement('p');
-              empty.textContent = 'No matching blocks';
+              empty.textContent = t('No matching blocks');
               menu.append(empty);
             }
             props.items.forEach((item, i) => {
@@ -154,7 +163,7 @@ export const SlashCommands = Extension.create({
               menu.id = 'document-block-menu';
               menu.className = 'slash-menu';
               menu.setAttribute('role', 'listbox');
-              menu.setAttribute('aria-label', 'Insert block');
+              menu.setAttribute('aria-label', t('Insert block'));
               document.body.append(menu);
               props.editor.view.dom.setAttribute('aria-controls', menu.id);
               props.editor.view.dom.setAttribute('aria-autocomplete', 'list');

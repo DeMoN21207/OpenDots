@@ -1,3 +1,4 @@
+import { t, useLocale } from './i18n';
 import { openPageLink } from './page-navigation';
 import { SpaceNav } from './SpaceNav';
 import { SpaceWorkspace } from './SpaceWorkspace';
@@ -41,6 +42,7 @@ import { TaskActions } from './TaskActions';
 import { WorkspaceDialog, type Dialog } from './WorkspaceDialog';
 
 export function App() {
+  useLocale();
   const [state, setState] = useState<State>();
   const [workspace, setWorkspace] = useState<WorkspaceState>();
   const [selectedDot, setSelectedDot] = useState('');
@@ -55,7 +57,10 @@ export function App() {
     dirtyPage.current = value;
   }, []);
   const setView = (next: typeof view) => {
-    if (dirtyPage.current && !window.confirm('Leave your unsaved page draft?'))
+    if (
+      dirtyPage.current &&
+      !window.confirm(t('Leave your unsaved page draft?'))
+    )
       return;
     dirtyPage.current = false;
     if (next !== 'space')
@@ -72,7 +77,7 @@ export function App() {
       if (dirtyPage.current && location.hash === acceptedHash) return;
       if (
         dirtyPage.current &&
-        !window.confirm('Leave your unsaved page draft?')
+        !window.confirm(t('Leave your unsaved page draft?'))
       ) {
         history.replaceState(null, '', acceptedHash || location.pathname);
         return;
@@ -119,7 +124,9 @@ export function App() {
       if (e instanceof ApiError && e.status === 401) setNeedsAuth(true);
       else
         setError(
-          e instanceof Error ? e.message : 'Could not connect to the server.',
+          e instanceof Error
+            ? e.message
+            : t('Could not connect to the server.'),
         );
     }
   }, []);
@@ -156,7 +163,7 @@ export function App() {
         setTaskDetail(await api<Detail>(`/tasks/${taskDetail.task.id}`));
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not save.');
+      setError(e instanceof Error ? e.message : t('Could not save.'));
       return false;
     }
   };
@@ -183,7 +190,7 @@ export function App() {
     try {
       const next = await api<Conversation>('/conversations', 'POST', {
         dotId: dot.id,
-        title: text?.slice(0, 80) || 'A new thought',
+        title: text?.slice(0, 80) || t('A new thought'),
       });
       await refresh();
       setSelectedThread(next.id);
@@ -193,7 +200,9 @@ export function App() {
       setMobile(false);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : 'Could not create the conversation.',
+        e instanceof Error
+          ? e.message
+          : t('Could not create the conversation.'),
       );
     } finally {
       setBusy(false);
@@ -203,9 +212,11 @@ export function App() {
     return (
       <main className="unlock">
         <Mascot />
-        <h1>Your own little corner.</h1>
+        <h1>{t('Your own little corner.')}</h1>
         <p>
-          Enter the owner access token configured on this template’s server.
+          {t(
+            'Enter the owner access token configured on this template’s server.',
+          )}
         </p>
         <form
           onSubmit={async (e) => {
@@ -219,48 +230,50 @@ export function App() {
               setError(
                 err instanceof Error
                   ? err.message
-                  : 'Access token was not accepted.',
+                  : t('Access token was not accepted.'),
               );
             }
           }}
         >
           <input
             type="password"
-            aria-label="Owner access token"
+            aria-label={t('Owner access token')}
             autoComplete="current-password"
             value={auth}
             onChange={(e) => setAuth(e.target.value)}
             required
           />
-          <button className="primary">Unlock OpenDots</button>
+          <button className="primary">{t('Unlock OpenDots')}</button>
         </form>
         {error && (
           <p className="chat-error" role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
-        <p className="muted">The token stays in this tab’s session storage.</p>
+        <p className="muted">
+          {t('The token stays in this tab’s session storage.')}
+        </p>
       </main>
     );
   if (!state || !workspace || !dot)
     return (
       <main className="unlock">
         <Mascot state="working" />
-        <h1>Finding your dots…</h1>
+        <h1>{t('Finding your dots…')}</h1>
         {error && (
           <>
-            <p className="chat-error">{error}</p>
-            <button onClick={() => void refresh()}>Retry</button>
+            <p className="chat-error">{t(error)}</p>
+            <button onClick={() => void refresh()}>{t('Retry')}</button>
           </>
         )}
       </main>
     );
   const content = (
     <div className={`app template-app ${navCollapsed ? 'nav-collapsed' : ''}`}>
-      <nav className="icon-rail" aria-label="Workspace navigation">
+      <nav className="icon-rail" aria-label={t('Workspace navigation')}>
         <button
           className="rail-brand"
-          aria-label="OpenDots home"
+          aria-label={t('OpenDots home')}
           onClick={() => {
             setView('chat');
             setSelectedThread(undefined);
@@ -269,32 +282,37 @@ export function App() {
           o<span>·</span>
         </button>
         <button
-          aria-label={navCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={
+            navCollapsed ? t('Expand sidebar') : t('Collapse sidebar')
+          }
           onClick={() => setNavCollapsed(!navCollapsed)}
         >
           <PanelLeft size={18} />
         </button>
         <button
-          aria-label="New chat"
+          aria-label={t('New chat')}
           disabled={!configured}
           onClick={() => void newConversation()}
         >
           <Plus size={19} />
         </button>
         <button
-          aria-label="Open Spaces"
+          aria-label={t('Open Spaces')}
           onClick={() => {
             if (workspace.spaces[0]) openPage(workspace.spaces[0].id);
           }}
         >
           <Folder size={18} />
         </button>
-        <button aria-label="Open activity" onClick={() => setView('tasks')}>
+        <button
+          aria-label={t('Open activity')}
+          onClick={() => setView('tasks')}
+        >
           <Clock3 size={18} />
         </button>
         <button
           className="rail-settings"
-          aria-label="Open settings"
+          aria-label={t('Open settings')}
           onClick={() => setDialog({ type: 'settings' })}
         >
           <Settings2 size={18} />
@@ -302,7 +320,7 @@ export function App() {
       </nav>
       <button
         className="mobile-menu icon-button"
-        aria-label="Open navigation"
+        aria-label={t('Open navigation')}
         aria-expanded={mobile}
         aria-controls="workspace-sidebar"
         onClick={() => setMobile(true)}
@@ -312,7 +330,7 @@ export function App() {
       {mobile && (
         <button
           className="nav-scrim"
-          aria-label="Close navigation"
+          aria-label={t('Close navigation')}
           onClick={() => setMobile(false)}
         />
       )}
@@ -341,13 +359,13 @@ export function App() {
           onClick={() => void newConversation()}
         >
           <Plus size={17} />
-          <span>New chat</span>
+          <span>{t('New chat')}</span>
         </button>
         <div className="spaces-heading nav-label">
-          DOTS
+          {t('DOTS')}
           <button
             className="icon-button"
-            aria-label="Create Dot"
+            aria-label={t('Create Dot')}
             onClick={() =>
               setDialog({ type: 'dot', spaceId: workspace.spaces[0].id })
             }
@@ -355,7 +373,7 @@ export function App() {
             <Plus size={14} />
           </button>
         </div>
-        <nav className="dots-nav" aria-label="Dots">
+        <nav className="dots-nav" aria-label={t('Dots')}>
           {workspace.dots.map((item) => (
             <div className="dot-nav-row" key={item.id}>
               <button
@@ -370,7 +388,7 @@ export function App() {
               </button>
               <button
                 className="icon-button dot-settings"
-                aria-label={`Edit ${item.name} settings`}
+                aria-label={t('Edit {name} settings', { name: item.name })}
                 onClick={() =>
                   setDialog({ type: 'dot', dot: item, spaceId: item.spaceId })
                 }
@@ -381,16 +399,16 @@ export function App() {
           ))}
         </nav>
         <div className="spaces-heading nav-label">
-          SPACES
+          {t('SPACES')}
           <button
             className="icon-button"
-            aria-label="Create Space"
+            aria-label={t('Create Space')}
             onClick={() => setDialog({ type: 'space' })}
           >
             <Plus size={14} />
           </button>
         </div>
-        <nav className="spaces-nav" aria-label="Spaces">
+        <nav className="spaces-nav" aria-label={t('Spaces')}>
           {workspace.spaces.map((space) => (
             <SpaceNav
               key={space.id}
@@ -420,7 +438,7 @@ export function App() {
           />
         ) : (
           <div className="sidebar-empty">
-            Set up text chat to begin a persistent conversation.
+            {t('Set up text chat to begin a persistent conversation.')}
           </div>
         )}
         <div className="sidebar-bottom">
@@ -432,7 +450,7 @@ export function App() {
             }}
           >
             <Clock3 size={17} />
-            <span>Scheduled & activity</span>
+            <span>{t('Scheduled & activity')}</span>
             <small>{state.tasks.length}</small>
           </button>
           <button
@@ -443,7 +461,7 @@ export function App() {
             }}
           >
             <BookOpen size={17} />
-            <span>Memories</span>
+            <span>{t('Memories')}</span>
             <small>{state.memories.length}</small>
           </button>
           <button
@@ -451,7 +469,7 @@ export function App() {
             onClick={() => setDialog({ type: 'settings' })}
           >
             <Settings2 size={17} />
-            <span>Settings & setup</span>
+            <span>{t('Settings & setup')}</span>
           </button>
           <a
             className="nav-item"
@@ -460,11 +478,12 @@ export function App() {
             rel="noreferrer"
           >
             <Code2 size={17} />
-            <span>Make it your own</span>
+            <span>{t('Make it your own')}</span>
             <ArrowUpRight size={13} />
           </a>
           <div className="version">
-            OPEN SOURCE TEMPLATE <span>v0.1</span>
+            {t('OPEN SOURCE TEMPLATE')}
+            <span>v0.1</span>
           </div>
         </div>
       </aside>
@@ -472,7 +491,9 @@ export function App() {
         <header className="topbar">
           <button
             className="desktop-nav-toggle document-icon"
-            aria-label={navCollapsed ? 'Show navigation' : 'Hide navigation'}
+            aria-label={
+              navCollapsed ? t('Show navigation') : t('Hide navigation')
+            }
             onClick={() => setNavCollapsed(!navCollapsed)}
           >
             <PanelLeft size={18} />
@@ -481,27 +502,29 @@ export function App() {
             <span>
               {view === 'space'
                 ? workspace.spaces.find((space) => space.id === spaceId)?.name
-                : 'Dots'}
+                : t('Dots')}
             </span>
             <span>/</span>
             <strong>
               {view === 'chat'
                 ? dot.name
                 : view === 'tasks'
-                  ? 'Activity'
+                  ? t('Activity')
                   : view === 'space'
-                    ? 'Pages'
-                    : 'Memories'}
+                    ? t('Pages')
+                    : t('Memories')}
             </strong>
           </div>
           <div className="top-actions">
             <span className="mode-badge">
-              {configured ? 'SELF-HOSTED' : 'SETUP REQUIRED'}
+              {configured ? t('SELF-HOSTED') : t('SETUP REQUIRED')}
             </span>
             <button
               className="pause-button"
               aria-label={
-                state.settings.paused ? 'Resume all Dots' : 'Pause all Dots'
+                state.settings.paused
+                  ? t('Resume all Dots')
+                  : t('Pause all Dots')
               }
               onClick={() =>
                 void mutate('/settings', 'PATCH', {
@@ -510,11 +533,11 @@ export function App() {
               }
             >
               {state.settings.paused ? <Play size={14} /> : <Pause size={14} />}
-              <span>{state.settings.paused ? 'Resume' : 'Pause'}</span>
+              <span>{state.settings.paused ? t('Resume') : t('Pause')}</span>
             </button>
             <button
               className="icon-button"
-              aria-label={pane ? 'Hide computer' : 'Show computer'}
+              aria-label={pane ? t('Hide computer') : t('Show computer')}
               aria-expanded={pane}
               onClick={() => setPane(!pane)}
             >
@@ -524,10 +547,10 @@ export function App() {
         </header>
         {error && (
           <div className="error-banner" role="alert">
-            <span>{error}</span>
+            <span>{t(error)}</span>
             <button
               className="icon-button"
-              aria-label="Dismiss error"
+              aria-label={t('Dismiss error')}
               onClick={() => setError('')}
             >
               <X size={16} />
@@ -536,7 +559,9 @@ export function App() {
         )}
         {state.settings.paused && (
           <div className="notice">
-            All Dots are paused. Active compute stops and scheduled tasks wait.
+            {t(
+              'All Dots are paused. Active compute stops and scheduled tasks wait.',
+            )}
           </div>
         )}
         {view === 'space' ? (
@@ -601,7 +626,8 @@ export function App() {
                         setDialog({ type: 'dot', dot, spaceId: dot.spaceId })
                       }
                     >
-                      Edit specialist <MoreHorizontal size={14} />
+                      {t('Edit specialist')}
+                      <MoreHorizontal size={14} />
                     </button>
                   </div>
                   {!configured && (
@@ -610,18 +636,19 @@ export function App() {
                         <Settings2 size={20} />
                       </span>
                       <div>
-                        <strong>Connect your Dot</strong>
+                        <strong>{t('Connect your Dot')}</strong>
                         <p>
-                          Connect your model and conversation service in
-                          Settings to start chatting. Your Spaces and Dot
-                          preferences are ready to use.
+                          {t(
+                            'Connect your model and conversation service in Settings to start chatting. Your Spaces and Dot preferences are ready to use.',
+                          )}
                         </p>
                         <a
                           href="https://github.com/CopilotKit/OpenDots/blob/main/docs/SETUP.md"
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Open the setup guide <ArrowUpRight size={12} />
+                          {t('Open the setup guide')}
+                          <ArrowUpRight size={12} />
                         </a>
                       </div>
                     </div>
@@ -634,11 +661,11 @@ export function App() {
                     }}
                   >
                     <textarea
-                      aria-label="Start a conversation"
+                      aria-label={t('Start a conversation')}
                       placeholder={
                         configured
-                          ? `Message ${dot.name}…`
-                          : 'Your first conversation starts after setup.'
+                          ? t('Message {name}…', { name: dot.name })
+                          : t('Your first conversation starts after setup.')
                       }
                       value={prompt}
                       maxLength={4000}
@@ -648,11 +675,11 @@ export function App() {
                     <div className="composer-bottom">
                       <span>
                         <MessageCircle size={14} />
-                        Text and calls, one continuing conversation
+                        {t('Text and calls, one continuing conversation')}
                       </span>
                       <button
                         className="send-button"
-                        aria-label="Start conversation"
+                        aria-label={t('Start conversation')}
                         disabled={!configured || busy || !prompt.trim()}
                       >
                         <ArrowUp size={19} />
@@ -661,9 +688,9 @@ export function App() {
                   </form>
                   <div className="starter-suggestions">
                     {[
-                      'Help me think this through',
-                      'Research a public page',
-                      'Make a plan I can follow',
+                      t('Help me think this through'),
+                      t('Research a public page'),
+                      t('Make a plan I can follow'),
                     ].map((text) => (
                       <button
                         key={text}
@@ -679,12 +706,13 @@ export function App() {
                     <span
                       className={`online-dot ${workspace.setup.slack === 'online' ? '' : 'off'}`}
                     />
-                    Slack · {workspace.setup.slack.replaceAll('_', ' ')}
+                    {t('Slack ·')}
+                    {t(workspace.setup.slack.replaceAll('_', ' '))}
                     <button
                       className="text-button"
                       onClick={() => setDialog({ type: 'settings' })}
                     >
-                      Setup details
+                      {t('Setup details')}
                     </button>
                   </div>
                 </div>
@@ -705,16 +733,18 @@ export function App() {
           <main className="main-content">
             <div className="page-heading">
               <div>
-                <span className="eyebrow">YOUR WORKSPACE</span>
+                <span className="eyebrow">{t('YOUR WORKSPACE')}</span>
                 <h1>
                   {view === 'memories'
-                    ? 'Memories'
-                    : 'A little follow-through.'}
+                    ? t('Memories')
+                    : t('A little follow-through.')}
                 </h1>
                 <p>
                   {view === 'memories'
-                    ? 'Preferences you choose to share with your Dots.'
-                    : 'Scheduled turns run on the server in their original conversation.'}
+                    ? t('Preferences you choose to share with your Dots.')
+                    : t(
+                        'Scheduled turns run on the server in their original conversation.',
+                      )}
                 </p>
               </div>
               {view === 'memories' && (
@@ -723,7 +753,7 @@ export function App() {
                   onClick={() => setDialog({ type: 'memory' })}
                 >
                   <Plus size={15} />
-                  Add memory
+                  {t('Add memory')}
                 </button>
               )}
             </div>
@@ -737,19 +767,19 @@ export function App() {
                       <div>
                         <small>
                           {state.settings.memoryAllowed
-                            ? 'Available to permitted Dots'
-                            : 'Memory use disabled'}
+                            ? t('Available to permitted Dots')
+                            : t('Memory use disabled')}
                         </small>
                         <button
                           className="icon-button"
-                          aria-label="Edit memory"
+                          aria-label={t('Edit memory')}
                           onClick={() => setDialog({ type: 'memory', memory })}
                         >
                           <MoreHorizontal size={17} />
                         </button>
                         <button
                           className="icon-button"
-                          aria-label="Delete memory"
+                          aria-label={t('Delete memory')}
                           onClick={() =>
                             void mutate(`/memories/${memory.id}`, 'DELETE', {})
                           }
@@ -763,10 +793,11 @@ export function App() {
                 {!state.memories.length && (
                   <div className="large-empty">
                     <Mascot />
-                    <h2>A little context goes a long way.</h2>
+                    <h2>{t('A little context goes a long way.')}</h2>
                     <p>
-                      Add a preference like “Keep my research briefs short.” You
-                      can change or remove it anytime.
+                      {t(
+                        'Add a preference like “Keep my research briefs short.” You can change or remove it anytime.',
+                      )}
                     </p>
                   </div>
                 )}
@@ -776,8 +807,8 @@ export function App() {
                 <label className="search-box">
                   <Search size={16} />
                   <input
-                    aria-label="Search tasks"
-                    placeholder="Find a task…"
+                    aria-label={t('Search tasks')}
+                    placeholder={t('Find a task…')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -802,10 +833,11 @@ export function App() {
                 {!state.tasks.length && (
                   <div className="large-empty">
                     <Clock3 size={32} />
-                    <h2>Let a thought come back around.</h2>
+                    <h2>{t('Let a thought come back around.')}</h2>
                     <p>
-                      Open a conversation and use the clock button to schedule a
-                      server-side task.
+                      {t(
+                        'Open a conversation and use the clock button to schedule a server-side task.',
+                      )}
                     </p>
                   </div>
                 )}
@@ -825,13 +857,15 @@ export function App() {
                       }
                       onSchedule={async () => {
                         const raw = window.prompt(
-                          'Repeat interval in minutes (0 removes the schedule)',
+                          t(
+                            'Repeat interval in minutes (0 removes the schedule)',
+                          ),
                           String((taskDetail.task.intervalSeconds ?? 0) / 60),
                         );
                         if (raw === null) return;
                         const value = Number(raw);
                         if (!Number.isFinite(value) || value < 0) {
-                          setError('Enter a valid number of minutes.');
+                          setError(t('Enter a valid number of minutes.'));
                           return;
                         }
                         await mutate(
@@ -853,7 +887,9 @@ export function App() {
                         {event.text}
                       </p>
                     ))}
-                    <small>{taskDetail.runs.length} saved runs</small>
+                    <small>
+                      {taskDetail.runs.length} {t('saved runs')}
+                    </small>
                   </section>
                 )}
               </>
