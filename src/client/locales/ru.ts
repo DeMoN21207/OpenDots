@@ -1,6 +1,7 @@
 // English text is the fallback and message key. Keep placeholders unchanged.
 export const ru: Record<string, string> = {
-  'Choose what {name} and the computer controls can access.': 'Выберите, к чему агент {name} и инструменты компьютера имеют доступ.',
+  'Choose what {name} and the computer controls can access.':
+    'Выберите, к чему агент {name} и инструменты компьютера имеют доступ.',
   '{name} has control': 'Управляет {name}',
   'Computer for {name}': 'Компьютер агента {name}',
   'Live browser screen for {name}': 'Экран браузера агента {name}',
@@ -501,6 +502,9 @@ export const ru: Record<string, string> = {
     'Добавлять ваши предпочтения в новые запросы. Изменение разрешения останавливает текущую работу.',
   'Automatic Learning': 'Автоматическое обучение',
   'Learning container ID': 'ID контейнера обучения',
+  'Enter an ID from Intelligence': 'Введите ID из Intelligence',
+  'Enter a Learning container ID above to enable this option.':
+    'Чтобы включить эту опцию, укажите выше ID контейнера обучения.',
   'Create this container in your Intelligence project first. New conversations will contribute evidence to it. Leave blank to keep new conversations out of Learning. Existing conversations retain their original assignment.':
     'Сначала создайте контейнер в проекте Intelligence. В него будут поступать данные новых бесед. Оставьте поле пустым, чтобы отключить обучение для новых бесед. Привязка существующих бесед сохранится.',
   'Use published skills': 'Использовать опубликованные навыки',

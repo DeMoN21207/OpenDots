@@ -326,7 +326,7 @@ export function WorkspaceDialog({
                 value={learningContainer}
                 maxLength={64}
                 pattern="[a-z0-9]+(-[a-z0-9]+)*"
-                placeholder="research-workflow"
+                placeholder={t('Enter an ID from Intelligence')}
                 aria-describedby="learning-help"
                 onChange={(event) => {
                   setLearningContainer(event.target.value);
@@ -343,11 +343,19 @@ export function WorkspaceDialog({
                   type="checkbox"
                   checked={skillDelivery}
                   disabled={!learningContainer.trim()}
+                  aria-describedby="skill-delivery-help"
                   onChange={(event) => setSkillDelivery(event.target.checked)}
                 />
                 <span>
                   <strong>{t('Use published skills')}</strong>
-                  <small>
+                  <small id="skill-delivery-help">
+                    {!learningContainer.trim() && (
+                      <>
+                        {t(
+                          'Enter a Learning container ID above to enable this option.',
+                        )}{' '}
+                      </>
+                    )}
                     {t(
                       'Load reviewed skills from each conversation’s assigned container. Enable delivery in Intelligence too. Turning this off stops skill loading; it does not stop evidence collection.',
                     )}
@@ -398,8 +406,7 @@ export function WorkspaceDialog({
                     )}
               </p>
               <p>
-                {t('Slack:')}{' '}
-                {t(workspace.setup.slack.replaceAll('_', ' '))}
+                {t('Slack:')} {t(workspace.setup.slack.replaceAll('_', ' '))}
                 {t('. Voice:')}{' '}
                 {workspace.setup.voice
                   ? t('configuration present')
